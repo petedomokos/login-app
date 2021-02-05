@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 //helpers
 import { attemptLogin } from './api';
+import { UserStats } from "./UserStats";
 
 //pass in site theme here
 const useStyles = makeStyles(theme => ({
@@ -62,7 +63,7 @@ export default function Login(props) {
             //reset any previous error
             setError('');
             //if no error, then data will contain a JWT token (assumed back-end implemtation)
-            //store user jwt token in session storage 
+            //store user jwt token in session storage
             //note alternative options: (a) could use redux store but no need,
             // or (b) could use Route to get to Home instead, and pass user to Home as props -but only if
             //this component was to be integrated with app, rather than standalone login
@@ -81,7 +82,7 @@ export default function Login(props) {
       //if standalone, then consider options -> server can store jwt token so it is accessible from other apps (ie for single sign-on)
       //home page, and other pages, can access token via session storage
       //temp mock home page in place of external link
-      return(<MockHome/>)
+      return(<UserStats user={userJwt.name}/>)
       //for integrated app
       //return(<Redirect to={referrerUrl})
   }
@@ -121,4 +122,3 @@ const MockHome = () => {
     <div>Home page</div>
     )
 }
-
