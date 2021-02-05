@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 //MUI
 import { makeStyles } from '@material-ui/core/styles';
+//helpers
+import { attemptLogin } from './api';
 
 //pass in site theme here
 const useStyles = makeStyles(theme => ({
@@ -25,14 +27,33 @@ const useStyles = makeStyles(theme => ({
 export default function Login(props) {
   const classes = useStyles();
   //state
-  const [credentials, setCredentials] = useState({username:'', password:''});
-  //destructuring
-  const { username, password } = credentials;
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setCredentials(credentials => ({ ...credentials, [name]: value }));
+  const initStatus = {
+      credentials:{username:'', password:''},
+      attemptingLogin:false,
   }
-  const handleSubmit = (e) => {
+  const [status, setStatus] = useState(initStatus);
+  //destructuring
+  const { username, password } = status.credentials;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+     setStatus(status => ({...status, credentials:{...status.credentials, [name]: value } }));
+  }
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (username && password) {
+          setStatus(status => ({...status, attemptingLogin:true}))
+          //api call
+          const data = await attemptLogin(status.credentials);
+          console.log('data', data)
+          if(data.error){
+            console.log('failure', data)
+          }
+          else{
+            console.log('success', data)
+          }
+      }else{
+        alert('Please provide a username and password.')
+      }
   }
 
   return (
