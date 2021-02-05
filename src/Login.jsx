@@ -30,49 +30,48 @@ const useStyles = makeStyles(theme => ({
 export default function Login(props) {
   const classes = useStyles();
   //state
-  const initStatus = {
-      credentials:{username:'', password:''},
-      attemptingLogin:false,
-      error:'',
-      nrOfAttempts:0
-  }
-  const [status, setStatus] = useState(initStatus);
+  const [credentials, setCredentials] = useState({username:'', password:''});
+  const [attemptingLogin, setAttemptingLogin] = useState(false);
+  const [error, setError] = useState('');
+  const [nrOfAttempts, setNrOfAttempts] = useState(0);
   const [userJwt, setUserJwt] = useState(null);
   //destructuring
-  const { credentials, attemptingLogin, error, nrOfAttempts } = status;
   const { username, password } = credentials;
   //user input
   const handleChange = (e) => {
-    const { name, value } = e.target;
-     setStatus(status => ({...status, credentials:{...status.credentials, [name]: value } }));
+      const { name, value } = e.target;
+      setCredentials(credentials => ({...credentials,  [name]: value }));
+      //remove previous error mesg as user has started correcting
+      setError('');
   }
   //user submit
   const handleSubmit = async (e) => {
-     console.log('e value', e)
       e.preventDefault();
       if (username && password) {
-          setStatus(status => ({...status, attemptingLogin:true, nrOfAttempts:nrOfAttempts + 1}))
+          setAttemptingLogin(true);
+          setNrOfAttempts(nrOfAttempts => nrOfAttempts + 1)
           //api call
-          const data = await attemptLogin(status.credentials);
+          const data = await attemptLogin(credentials);
+          setAttemptingLogin(false);
           if(data.error){
-            //add error and reset attemptingLogin and password
-            const updatedCredentials = {...credentials, password:''}
-            setStatus(status => ({...status, attemptingLogin:false, error:data.error, credentials:updatedCredentials}));
+            //add error and reset password
+            setError(data.error);
+            setCredentials(credentials => ({...credentials,  password:''}));
           }
           else{
-            //reset attemptingLogin
-            setStatus(status => ({...status, attemptingLogin:false, error:''}));
+            //reset any previous error
+            setError('');
             //if no error, then data will contain a JWT token (assumed back-end implemtation)
             //store user jwt token in session storage 
             //note alternative options: (a) could use redux store but no need,
             // or (b) could use Route to get to Home instead, and pass user to Home as props -but only if
             //this component was to be integrated with app, rather than standalone login
-            sessionStorage.setItem('jwt', JSON.stringify(data.jwt))
+            sessionStorage.setItem('jwt', JSON.stringify(data.jwt));
             //update token in component state to trigger re-render and hence Redirect
-            setUserJwt(data.jwt)
+            setUserJwt(data.jwt);
           }
       }else{
-        alert('Please provide a username and password.')
+        alert('Please provide a username and password.');
       }
   }
 
@@ -86,7 +85,6 @@ export default function Login(props) {
       //for integrated app
       //return(<Redirect to={referrerUrl})
   }
-
   return (
       <div className={classes.root}>
           <h2>Login</h2>
