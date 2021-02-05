@@ -37,7 +37,7 @@ export default function Login(props) {
       nrOfAttempts:0
   }
   const [status, setStatus] = useState(initStatus);
-  const [userJwt, setUserJwt] = useState('');
+  const [userJwt, setUserJwt] = useState(null);
   //destructuring
   const { credentials, attemptingLogin, error, nrOfAttempts } = status;
   const { username, password } = credentials;
@@ -48,6 +48,7 @@ export default function Login(props) {
   }
   //user submit
   const handleSubmit = async (e) => {
+     console.log('e value', e)
       e.preventDefault();
       if (username && password) {
           setStatus(status => ({...status, attemptingLogin:true, nrOfAttempts:nrOfAttempts + 1}))
@@ -60,17 +61,15 @@ export default function Login(props) {
           }
           else{
             //reset attemptingLogin
-            setStatus(status => ({...status, attemptingLogin:false}));
+            setStatus(status => ({...status, attemptingLogin:false, error:''}));
             //if no error, then data will contain a JWT token (assumed back-end implemtation)
             //store user jwt token in session storage 
             //note alternative options: (a) could use redux store but no need,
             // or (b) could use Route to get to Home instead, and pass user to Home as props -but only if
             //this component was to be integrated with app, rather than standalone login
-            if (typeof window !== "undefined"){
-              sessionStorage.setItem('jwt', JSON.stringify(data.jwt))
-              //update token in component state to trigger re-render and hence Redirect
-              setUserJwt(data.jwt)
-            }
+            sessionStorage.setItem('jwt', JSON.stringify(data.jwt))
+            //update token in component state to trigger re-render and hence Redirect
+            setUserJwt(data.jwt)
           }
       }else{
         alert('Please provide a username and password.')
@@ -93,12 +92,12 @@ export default function Login(props) {
           <h2>Login</h2>
           <form name="form" onSubmit={handleSubmit}>
               <div className={classes.formElement}>
-                  <label className={classes.label}>Username</label>
-                  <input className={classes.input} type="text" name="username" value={username} onChange={handleChange} />
+                  <label className={classes.label} htmlFor="username">Username</label>
+                  <input className={classes.input} id="username" type="text" name="username" value={username} onChange={handleChange} />
               </div>
               <div className={classes.formElement}>
-                  <label className={classes.label}>Password</label>
-                  <input className={classes.input} type="password" name="password" value={password} onChange={handleChange} />
+                  <label className={classes.label} htmlFor="password">Password</label>
+                  <input className={classes.input} id="password" type="password" name="password" value={password} onChange={handleChange} />
               </div>
               <div className={classes.submit}>
                   <button>
