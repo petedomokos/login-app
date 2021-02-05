@@ -21,6 +21,8 @@ const useStyles = makeStyles(theme => ({
     margin:'10px'
   },
   error:{
+    margin:'10px',
+    color:'red'
   }
 }));
 
@@ -30,10 +32,12 @@ export default function Login(props) {
   const initStatus = {
       credentials:{username:'', password:''},
       attemptingLogin:false,
+      error:''
   }
   const [status, setStatus] = useState(initStatus);
   //destructuring
-  const { username, password } = status.credentials;
+  const { credentials, attemptingLogin, error } = status;
+  const { username, password } = credentials;
   const handleChange = (e) => {
     const { name, value } = e.target;
      setStatus(status => ({...status, credentials:{...status.credentials, [name]: value } }));
@@ -47,6 +51,9 @@ export default function Login(props) {
           console.log('data', data)
           if(data.error){
             console.log('failure', data)
+            //add error and reset attemptingLogin and password
+            const updatedCredentials = {...credentials, password:''}
+            setStatus(status => ({...status, attemptingLogin:false, error:data.error, credentials:updatedCredentials}));
           }
           else{
             console.log('success', data)
@@ -73,7 +80,8 @@ export default function Login(props) {
                       Login
                   </button>
               </div>
-
+              {attemptingLogin && <div className={classes.error}>Attempting login...</div>}
+              {error && <div className={classes.error}>{error}</div>}
           </form>
       </div>
     );

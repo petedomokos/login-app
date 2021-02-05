@@ -1,14 +1,14 @@
 //mock success
-export const attemptLogin = (credentials) =>{
+/*export const attemptLogin = (credentials) =>{
   return new Promise((resolve, reject) => {
     setTimeout(() =>{
       resolve({jwt:'mock token'});
     },1000)
   })
-}
+}*/
 
 //mock failure
-/*
+
 export const attemptLogin = (credentials) =>{
    return new Promise((resolve, reject) => {
       setTimeout(() =>{
@@ -16,4 +16,3 @@ export const attemptLogin = (credentials) =>{
       },1000)
    })
 }
-*/
