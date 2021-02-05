@@ -24,10 +24,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function Login(props) {
   const classes = useStyles();
-  const username = '';
-  const password = '';
+  //state
+  const [credentials, setCredentials] = useState({username:'', password:''});
+  //destructuring
+  const { username, password } = credentials;
   function handleChange(e) {
-
+    const { name, value } = e.target;
+    setCredentials(credentials => ({ ...credentials, [name]: value }));
   }
   const handleSubmit = (e) => {
   }
