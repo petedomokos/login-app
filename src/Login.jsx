@@ -44,35 +44,53 @@ export default function Login(props) {
       //remove previous error mesg as user has started correcting
       setError('');
   }
-  //user submit
-  const handleSubmit = async (e) => {
+  //validation
+  const validateInput = () =>{
+    //todo - full validation
+    //for now, just check for existence of username and password
+    if(username && password){
+      return {isValid:true}
+    }else{
+      return {errorMessage:'Please provide a username and password.'}
+    }
+  }
+  //submit
+  const handleSubmit = (e) => {
       e.preventDefault();
-      if (username && password) {
-          setAttemptingLogin(true);
-          setNrOfAttempts(nrOfAttempts => nrOfAttempts + 1)
-          //api call
-          const data = await attemptLogin(credentials);
-          setAttemptingLogin(false);
-          if(data.error){
-            //add error and reset password
-            setError(data.error);
-            setCredentials(credentials => ({...credentials,  password:''}));
-          }
-          else{
-            //reset any previous error
-            setError('');
-            //if no error, then data will contain a JWT token (assumed back-end implemtation)
-            //store user jwt token in session storage 
-            //note alternative options: (a) could use redux store but no need,
-            // or (b) could use Route to get to Home instead, and pass user to Home as props -but only if
-            //this component was to be integrated with app, rather than standalone login
-            sessionStorage.setItem('jwt', JSON.stringify(data.jwt));
-            //update token in component state to trigger re-render and hence Redirect
-            setUserJwt(data.jwt);
-          }
+      const { isValid, errorMessage } = validateInput();
+      if (isValid) {
+        processLoginRequest();
       }else{
-        alert('Please provide a username and password.');
+        alert(errorMessage);
       }
+  }
+  //process login
+  const processLoginRequest = async () => {
+      setAttemptingLogin(true);
+      setNrOfAttempts(nrOfAttempts => nrOfAttempts + 1)
+      //api call
+      const data = await attemptLogin(credentials);
+      setAttemptingLogin(false);
+      if(data.error){
+        handleFailedLogin(data.error);
+      }else{
+        handleSuccessfulLogin(data.jwt)
+      }
+  }
+
+  const handleFailedLogin = (error) =>{
+      //add error and reset password
+      setError(error);
+      setCredentials(credentials => ({...credentials,  password:''}));
+  }
+
+  const handleSuccessfulLogin = (jwt) =>{
+      //reset any previous error
+      setError('');
+      //store user jwt token in session storage 
+      sessionStorage.setItem('jwt', JSON.stringify(jwt));
+      //update token in component state to trigger re-render and hence Redirect
+      setUserJwt(jwt);
   }
 
   if(userJwt){
@@ -88,14 +106,16 @@ export default function Login(props) {
   return (
       <div className={classes.root}>
           <h2>Login</h2>
-          <form name="form" onSubmit={handleSubmit}>
+          <form name="form" onSubmit={handleSubmit} noValidate>
               <div className={classes.formElement}>
-                  <label className={classes.label} htmlFor="username">Username</label>
-                  <input className={classes.input} id="username" type="text" name="username" value={username} onChange={handleChange} />
+                  <label className={classes.label} htmlFor="username" >Username</label>
+                  <input className={classes.input} id="username" type="text" name="username" 
+                    value={username} onChange={handleChange} required />
               </div>
               <div className={classes.formElement}>
                   <label className={classes.label} htmlFor="password">Password</label>
-                  <input className={classes.input} id="password" type="password" name="password" value={password} onChange={handleChange} />
+                  <input className={classes.input} id="password" type="password" name="password" 
+                    value={password} onChange={handleChange} required/>
               </div>
               <div className={classes.submit}>
                   <button>
