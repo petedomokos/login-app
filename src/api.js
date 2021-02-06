@@ -8,6 +8,7 @@ export const attemptLogin = (credentials) =>{
   })
 }
 
+
 //mock failure
 /*
 export const attemptLogin = (credentials) =>{
@@ -18,4 +19,5 @@ export const attemptLogin = (credentials) =>{
    })
 }
 */
+
 

@@ -44,9 +44,10 @@ export default function Login(props) {
       //remove previous error mesg as user has started correcting
       setError('');
   }
-  //validation
+  //submit using a validation fiunction and processLoginRequest function 
+  /*
   const validateInput = () =>{
-    //todo - full validation
+    //todo - full validation using html form api constraints
     //for now, just check for existence of username and password
     if(username && password){
       return {isValid:true}
@@ -56,14 +57,14 @@ export default function Login(props) {
   }
   //submit
   const handleSubmit = (e) => {
-      e.preventDefault();
-      const { isValid, errorMessage } = validateInput();
-      if (isValid) {
-        processLoginRequest();
-      }else{
-        alert(errorMessage);
-      }
-  }
+        e.preventDefault();
+        const { isValid, errorMessage } = validateInput();
+        if (isValid) {
+          processLoginRequest();
+        }else{
+          alert(errorMessage);
+        }
+    }
   //process login
   const processLoginRequest = async () => {
       setAttemptingLogin(true);
@@ -71,6 +72,21 @@ export default function Login(props) {
       //api call
       const data = await attemptLogin(credentials);
       setAttemptingLogin(false);
+      if(data.error){
+        handleFailedLogin(data.error);
+      }else{
+        handleSuccessfulLogin(data.jwt)
+      }
+  }
+  */
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setAttemptingLogin(true);
+      setNrOfAttempts(nrOfAttempts => nrOfAttempts + 1)
+      //api call
+      const data = await attemptLogin(credentials);
+      setAttemptingLogin(false);
+      //handle response
       if(data.error){
         handleFailedLogin(data.error);
       }else{
@@ -103,10 +119,13 @@ export default function Login(props) {
       //for integrated app
       //return(<Redirect to={referrerUrl})
   }
+
+  //todo - custom validation by adding noValidate to form, 
+  //and running a validation function on submit
   return (
       <div className={classes.root}>
           <h2>Login</h2>
-          <form name="form" onSubmit={handleSubmit} noValidate>
+          <form name="form" onSubmit={handleSubmit}>
               <div className={classes.formElement}>
                   <label className={classes.label} htmlFor="username" >Username</label>
                   <input className={classes.input} id="username" type="text" name="username" 
@@ -115,7 +134,7 @@ export default function Login(props) {
               <div className={classes.formElement}>
                   <label className={classes.label} htmlFor="password">Password</label>
                   <input className={classes.input} id="password" type="password" name="password" 
-                    value={password} onChange={handleChange} required/>
+                    value={password} onChange={handleChange} required />
               </div>
               <div className={classes.submit}>
                   <button>
